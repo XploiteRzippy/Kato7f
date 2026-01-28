@@ -1,0 +1,13 @@
+{
+  "name": "kat-obfuscator",
+  "version": "1.0.0",
+  "description": "Advanced Luau Obfuscator API",
+  "main": "api/obfuscate.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "keywords": ["obfuscator", "luau", "roblox"],
+  "author": "Kat",
+  "license": "MIT"
+}
