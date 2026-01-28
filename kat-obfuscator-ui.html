@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kat Obfuscator | Private</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0514 0%, #1a0f2e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #a855f7;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+            50% { transform: translateY(-100px) translateX(50px); opacity: 0.6; }
+        }
+        
+        /* Purple glow animation */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 0 80px rgba(168, 85, 247, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.2); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
+            letter-spacing: -1px;
+        }
+        
+        .tagline {
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        /* Main card */
+        .main-card {
+            background: rgba(13, 8, 22, 0.95);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            animation: pulse-glow 3s infinite ease-in-out, fadeInUp 0.8s ease;
+            backdrop-filter: blur(20px);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Options grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .option-card {
+            background: rgba(30, 22, 50, 0.6);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .option-card:hover {
+            border-color: #a855f7;
+            background: rgba(30, 22, 50, 0.8);
+            transform: translateY(-2px);
+        }
+        
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .option-title {
+            font-weight: 700;
+            font-size: 14px;
+            color: #c084fc;
+        }
+        
+        .option-description {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+        
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #332a44;
+            transition: 0.4s;
+            border-radius: 34px;
+            border: 1px solid #4c3a69;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border-color: #a855f7;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        /* Textarea */
+        .code-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-label {
+            font-weight: 700;
+            font-size: 14px;
+            color: #c084fc;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            background: rgba(10, 5, 20, 0.8);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+        }
+        
+        textarea::placeholder {
+            color: #64748b;
+        }
+        
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(124, 58, 237, 0.6);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: rgba(30, 22, 50, 0.8);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(30, 22, 50, 1);
+            border-color: #a855f7;
+        }
+        
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(10, 5, 20, 0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #a855f7;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Loading animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 10px;
+            border: 4px solid rgba(168, 85, 247, 0.2);
+            border-top-color: #a855f7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #64748b;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated particles background -->
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">Kat Obfuscator</div>
+            <div class="tagline">Private • Secure • Advanced</div>
+        </div>
+        
+        <!-- Main Card -->
+        <div class="main-card">
+            <!-- Options -->
+            <div class="options-grid">
+                <div class="option-card">
+                    <div class="option-header">
+                        <span class="option-title">🔐 String Encryption</span>
+                        <label class="switch">
+                            <input type="checkbox" id="opt-strings" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <p class="option-description">XOR-based encryption for all string literals</p>
+                </div>
+                
+                <div class="option-card">
+                    <div class="option-header">
+                        <span class="option-title">🖥️ VM Obfuscation</span>
+                        <label class="switch">
+                            <input type="checkbox" id="opt-vm" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <p class="option-description">Virtual machine layer for maximum protection</p>
+                </div>
+                
+                <div class="option-card">
+                    <div class="option-header">
+                        <span class="option-title">🔤 Variable Renaming</span>
+                        <label class="switch">
+                            <input type="checkbox" id="opt-vars" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <p class="option-description">Randomize all variable names</p>
+                </div>
+                
+                <div class="option-card">
+                    <div class="option-header">
+                        <span class="option-title">💀 Dead Code</span>
+                        <label class="switch">
+                            <input type="checkbox" id="opt-dead" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <p class="option-description">Inject non-functional code blocks</p>
+                </div>
+                
+                <div class="option-card">
+                    <div class="option-header">
+                        <span class="option-title">🌀 Control Flow</span>
+                        <label class="switch">
+                            <input type="checkbox" id="opt-flow" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <p class="option-description">Flatten control flow structures</p>
+                </div>
+                
+                <div class="option-card">
+                    <div class="option-header">
+                        <span class="option-title">🛡️ Anti-Tamper</span>
+                        <label class="switch">
+                            <input type="checkbox" id="opt-tamper" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <p class="option-description">Detect and prevent debugging attempts</p>
+                </div>
+            </div>
+            
+            <!-- Code Input -->
+            <div class="code-section">
+                <label class="section-label">📝 Input Code</label>
+                <textarea id="input-code" placeholder="Paste your Luau code here...">-- Sample Luau Script
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local function greet(name)
+    print("Hello, " .. name .. "!")
+    return "Welcome!"
+end
+
+greet(player.Name)</textarea>
+            </div>
+            
+            <!-- Output -->
+            <div class="code-section">
+                <label class="section-label">🔒 Obfuscated Output</label>
+                <textarea id="output-code" placeholder="Obfuscated code will appear here..." readonly></textarea>
+            </div>
+            
+            <!-- Buttons -->
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="obfuscate()">
+                    ⚡ Obfuscate Code
+                </button>
+                <button class="btn btn-secondary" onclick="copyOutput()">
+                    📋 Copy Output
+                </button>
+                <button class="btn btn-secondary" onclick="clearAll()">
+                    🗑️ Clear All
+                </button>
+            </div>
+            
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Obfuscating your code...</p>
+            </div>
+            
+            <!-- Stats -->
+            <div class="stats" id="stats" style="display: none;">
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-size">0%</div>
+                    <div class="stat-label">Size Increase</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-strings">0</div>
+                    <div class="stat-label">Strings Encrypted</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-vars">0</div>
+                    <div class="stat-label">Variables Renamed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-lines">0</div>
+                    <div class="stat-label">Lines Added</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            Made with ❤️ for the Roblox community • © 2024 Kat Obfuscator
+        </div>
+    </div>
+    
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                particles.appendChild(particle);
+            }
+        }
+        createParticles();
+        
+        // Obfuscation logic - Calls Vercel API
+        async function obfuscate() {
+            const input = document.getElementById('input-code').value;
+            const output = document.getElementById('output-code');
+            const loading = document.getElementById('loading');
+            const stats = document.getElementById('stats');
+            
+            if (!input.trim()) {
+                alert('Please enter some code to obfuscate!');
+                return;
+            }
+            
+            // Show loading
+            loading.classList.add('active');
+            stats.style.display = 'none';
+            output.value = '';
+            
+            // Get options
+            const options = {
+                stringEncryption: document.getElementById('opt-strings').checked,
+                vmObfuscation: document.getElementById('opt-vm').checked,
+                variableRenaming: document.getElementById('opt-vars').checked,
+                deadCodeInjection: document.getElementById('opt-dead').checked,
+                controlFlowFlattening: document.getElementById('opt-flow').checked,
+                antiTamper: document.getElementById('opt-tamper').checked
+            };
+            
+            try {
+                // Call the Vercel API
+                // Change this URL to your Vercel deployment URL
+                const API_URL = '/api/obfuscate'; // or 'https://your-app.vercel.app/api/obfuscate'
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        code: input,
+                        options: options
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Obfuscation failed');
+                }
+                
+                const result = await response.json();
+                
+                // Display obfuscated code
+                output.value = result.obfuscated;
+                loading.classList.remove('active');
+                stats.style.display = 'grid';
+                
+                // Update stats
+                document.getElementById('stat-size').textContent = result.stats.sizeIncrease + '%';
+                document.getElementById('stat-strings').textContent = result.stats.stringsEncrypted;
+                document.getElementById('stat-vars').textContent = result.stats.variablesRenamed;
+                document.getElementById('stat-lines').textContent = result.stats.linesAdded;
+                
+                console.log('Session ID:', result.sessionId);
+                
+            } catch (error) {
+                loading.classList.remove('active');
+                alert('❌ Error: ' + error.message);
+                console.error('Obfuscation error:', error);
+            }
+        }
+        
+        function copyOutput() {
+            const output = document.getElementById('output-code');
+            if (!output.value) {
+                alert('Nothing to copy! Obfuscate some code first.');
+                return;
+            }
+            output.select();
+            document.execCommand('copy');
+            alert('✅ Copied to clipboard!');
+        }
+        
+        function clearAll() {
+            if (confirm('Clear all code?')) {
+                document.getElementById('input-code').value = '';
+                document.getElementById('output-code').value = '';
+                document.getElementById('stats').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
