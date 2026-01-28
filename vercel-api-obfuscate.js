@@ -1,8 +1,8 @@
 // api/obfuscate.js - Vercel Serverless Function
+// This file handles obfuscation requests
 
 const crypto = require('crypto');
 
-// Luau Obfuscator Class (embedded)
 class LuauObfuscator {
     constructor(options = {}) {
         this.options = {
@@ -221,18 +221,18 @@ task.spawn(_check)
     }
 }
 
-// Main Vercel Handler
-export default async function handler(req, res) {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Credentials', true);
+// Vercel Serverless Function Handler
+module.exports = async (req, res) => {
+    // CORS headers - allow all origins
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
     res.setHeader(
         'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Session-ID'
+        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
     );
     
-    // Handle OPTIONS
+    // Handle OPTIONS preflight
     if (req.method === 'OPTIONS') {
         res.status(200).end();
         return;
@@ -240,39 +240,45 @@ export default async function handler(req, res) {
     
     // Only accept POST
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ 
+            error: 'Method not allowed',
+            message: 'This endpoint only accepts POST requests'
+        });
     }
     
     try {
-        const { code, options, sessionId } = req.body;
+        const { code, options } = req.body;
         
         // Validate input
         if (!code || typeof code !== 'string') {
-            return res.status(400).json({ error: 'Invalid code provided' });
+            return res.status(400).json({ 
+                error: 'Invalid input',
+                message: 'Code must be a non-empty string'
+            });
         }
         
         if (code.length > 100000) {
-            return res.status(400).json({ error: 'Code too large (max 100KB)' });
+            return res.status(400).json({ 
+                error: 'Code too large',
+                message: 'Maximum code size is 100KB'
+            });
         }
         
-        // Generate unique session ID if not provided
-        const requestSessionId = sessionId || crypto.randomBytes(16).toString('hex');
+        // Generate unique session ID
+        const sessionId = crypto.randomBytes(16).toString('hex');
         
-        // Add session watermark to obfuscated code (optional)
-        const sessionComment = `\n-- Session: ${requestSessionId.substring(0, 8)}\n`;
-        
-        // Obfuscate
+        // Obfuscate the code
         const obfuscator = new LuauObfuscator(options || {});
         const result = obfuscator.obfuscate(code);
         
         // Add session watermark
-        result.code = sessionComment + result.code;
+        const watermark = `-- Obfuscated by Kat Obfuscator | Session: ${sessionId.substring(0, 8)}\n`;
         
-        // Return response with session ID
+        // Return success response
         return res.status(200).json({
             success: true,
-            sessionId: requestSessionId,
-            obfuscated: result.code,
+            sessionId: sessionId,
+            obfuscated: watermark + result.code,
             stats: result.stats,
             timestamp: new Date().toISOString()
         });
@@ -281,7 +287,8 @@ export default async function handler(req, res) {
         console.error('Obfuscation error:', error);
         return res.status(500).json({ 
             error: 'Obfuscation failed',
-            message: error.message 
+            message: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
-}
+};
